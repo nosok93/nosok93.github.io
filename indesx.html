@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>KEDR_AI — ИИ, который живёт только в Telegram</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="KEDR_AI — молодой экспериментальный ИИ, который живёт только в Telegram. Этот сайт — не интерфейс ИИ, а неоновый навигатор по KEDR и демо игры «Ситуации». Настоящая игра запускается в боте @KedrAI_bot по команде /situation."
+  />
+  <!-- ScrollReveal для появления блоков при прокрутке -->
+  <script src="https://unpkg.com/scrollreveal"></script>
+  <style>
+    :root {
+      --bg: #050608;
+      --card-bg: #0b0f16;
+      --accent: #4cff88;
+      --accent-soft: rgba(76, 255, 136, 0.15);
+      --accent-strong: rgba(76, 255, 136, 0.28);
+      --text-main: #f5f7fb;
+      --text-muted: #9aa0b5;
+      --border-soft: rgba(255, 255, 255, 0.06);
+      --danger: #ff4c6a;
+      --danger-soft: rgba(255, 76, 106, 0.14);
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.75);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #050608 55%, #020308 100%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px 16px 56px;
+      position: relative;
+    }
+
+    /* Лёгкий шум/фон */
+    .noise {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      opacity: 0.18;
+      mix-blend-mode: soft-light;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6' /%3E%3C/svg%3E");
+      z-index: -1;
+    }
+
+    /* HEADER */
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      background: radial-gradient(circle at 30% 20%, #b4ffd4, #4cff88 40%, #1b803f 100%);
+      box-shadow:
+        0 0 18px rgba(76, 255, 136, 0.7),
+        0 0 38px rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .logo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.85));
+    }
+
+    .logo-wrap:hover {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow:
+        0 0 26px rgba(76, 255, 136, 1),
+        0 0 52px rgba(0, 0, 0, 1);
+    }
+
+    .brand-text-main {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand-text-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .tagline {
+      font-size: 12px;
+      color: var(--accent);
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border-radius: 999px;
+      border: 1px solid rgba(76, 255, 136, 0.35);
+      padding: 6px 12px;
+      background: linear-gradient(
+        120deg,
+        rgba(76, 255, 136, 0.15),
+        rgba(15, 24, 18, 0.7)
+      );
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 560px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .tagline {
+        white-space: normal;
+      }
+    }
+
+    /* HERO */
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 840px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hero-main {
+      background: linear-gradient(135deg, rgba(15, 19, 27, 0.9), rgba(4, 6, 10, 0.98));
+      border-radius: var(--radius-lg);
+      padding: 22px 20px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-main::before {
+      content: "";
+      position: absolute;
+      inset: -30%;
+      background:
+        radial-gradient(circle at top left, rgba(76, 255, 136, 0.2), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(76, 196, 255, 0.16), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .hero-main-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-kicker {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .hero-title {
+      font-size: 30px;
+      line-height: 1.18;
+      margin-bottom: 10px;
+    }
+
+    .hero-title span {
+      color: var(--accent);
+    }
+
+    .hero-subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 12px;
+      max-width: 520px;
+    }
+
+    .hero-warning {
+      font-size: 12px;
+      color: #ffe1e8;
+      background: linear-gradient(135deg, var(--danger-soft), rgba(15, 23, 42, 0.85));
+      border-radius: 10px;
+      border: 1px solid rgba(255, 76, 106, 0.6);
+      padding: 8px 10px;
+      margin-bottom: 14px;
+    }
+
+    .hero-warning strong {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    .hero-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .btn-primary {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #020305;
+      background: radial-gradient(circle at 20% 0, #eafff3, #4cff88 40%, #19a352 100%);
+      box-shadow:
+        0 0 20px rgba(76, 255, 136, 0.9),
+        0 0 42px rgba(0, 0, 0, 1);
+      text-decoration: none;
+      transition: transform 0.08s ease, box-shadow 0.1s ease, filter 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary span.icon {
+      font-size: 16px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow:
+        0 0 28px rgba(76, 255, 136, 1),
+        0 0 52px rgba(0, 0, 0, 1);
+    }
+
+    .btn-ghost {
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 13px;
+      border: 1px solid var(--border-soft);
+      color: var(--text-muted);
+      background: rgba(4, 7, 12, 0.9);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-ghost::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.15),
+        transparent
+      );
+      transform: translateX(-120%);
+      opacity: 0;
+    }
+
+    .btn-ghost:hover::after {
+      animation: shimmer 0.7s ease-out;
+      opacity: 1;
+    }
+
+    .hero-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .hero-side {
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at 30% 0, rgba(76, 255, 136, 0.16), #05070d 60%);
+      padding: 18px 16px;
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--accent);
+      background: rgba(15, 27, 18, 0.85);
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid rgba(76, 255, 136, 0.4);
+      margin-bottom: 12px;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(76, 255, 136, 0.9);
+    }
+
+    .hero-side-title {
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .hero-side-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .dialog-card {
+      background: rgba(7, 10, 16, 0.96);
+      border-radius: var(--radius-md);
+      padding: 10px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 10px;
+    }
+
+    .dialog-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .bubble-user,
+    .bubble-ai,
+    .bubble-danger {
+      font-size: 13px;
+      border-radius: 10px;
+      padding: 7px 9px;
+      margin-bottom: 6px;
+    }
+
+    .bubble-user {
+      background: rgba(8, 11, 18, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: var(--text-muted);
+    }
+
+    .bubble-ai {
+      background: rgba(10, 18, 14, 0.96);
+      border: 1px solid rgba(76, 255, 136, 0.45);
+      color: var(--text-main);
+    }
+
+    .bubble-danger {
+      background: rgba(60, 10, 20, 0.96);
+      border: 1px solid rgba(255, 76, 106, 0.7);
+      color: #ffd5dd;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 11px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: rgba(10, 15, 20, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    .pill-danger {
+      border-color: rgba(255, 76, 106, 0.7);
+      color: #ff9db2;
+    }
+
+    /* MAIN GRID */
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 880px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top, rgba(12, 24, 18, 0.7), rgba(5, 7, 11, 0.98));
+      border-radius: var(--radius-lg);
+      padding: 18px 16px;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at top, rgba(76, 255, 136, 0.16), transparent 60%);
+      transition: opacity 0.25s ease;
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .section-title {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .section-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .list {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .list-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px 10px;
+      align-items: flex-start;
+    }
+
+    .list-dot {
+      margin-top: 7px;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .list-label {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .list-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* DEMO GAME */
+
+    .game-header {
+      font-size: 12px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+    }
+
+    .game-block {
+      margin-top: 10px;
+      border-radius: 14px;
+      background: rgba(7, 10, 16, 0.96);
+      border: 1px solid var(--border-soft);
+      padding: 12px 11px;
+    }
+
+    .game-situation-title {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .game-situation-text {
+      font-size: 13px;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .game-choices {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .choice-btn {
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(8, 12, 18, 0.98);
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+      color: var(--text-muted);
+    }
+
+    .choice-btn:hover {
+      background: rgba(8, 20, 18, 0.98);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      color: var(--text-main);
+    }
+
+    .choice-btn.selected {
+      background: rgba(10, 24, 18, 0.98);
+      border-color: var(--accent-strong);
+      color: var(--accent);
+    }
+
+    .game-outcome {
+      font-size: 12px;
+      color: var(--text-main);
+      padding: 7px 9px;
+      border-radius: 10px;
+      background: rgba(8, 11, 18, 0.98);
+      border: 1px solid var(--border-soft);
+      margin-bottom: 6px;
+      display: none;
+    }
+
+    .game-outcome.win {
+      border-color: var(--accent-strong);
+      box-shadow: 0 0 16px rgba(76, 255, 136, 0.5);
+    }
+
+    .game-outcome.lose {
+      border-color: rgba(255, 76, 106, 0.7);
+      box-shadow: 0 0 16px rgba(255, 76, 106, 0.45);
+    }
+
+    .game-note {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .game-controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn-small {
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(8, 11, 18, 0.98);
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+    }
+
+    .btn-small:hover {
+      background: rgba(10, 18, 16, 0.98);
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .game-index {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* STEPS */
+
+    .steps {
+      list-style: none;
+      counter-reset: steps;
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .step-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px 12px;
+      align-items: flex-start;
+    }
+
+    .step-item::before {
+      counter-increment: steps;
+      content: counter(steps);
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #020304;
+      background: radial-gradient(circle at 30% 0, #f5fff9, #4cff88 55%, #168146 100%);
+      box-shadow: 0 0 16px rgba(76, 255, 136, 0.9);
+    }
+
+    .step-title {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .step-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* COMMAND COPY */
+
+    .command-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .command {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(8, 11, 18, 0.98);
+      border: 1px solid var(--border-soft);
+      cursor: pointer;
+      color: var(--text-main);
+      transition: background 0.1s ease, border-color 0.1s ease, transform 0.06s ease;
+    }
+
+    .command:hover {
+      background: rgba(10, 18, 16, 0.98);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .command-hint {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .command-hint.success {
+      color: var(--accent);
+    }
+
+    /* FOOTER */
+
+    footer {
+      margin-top: 26px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      justify-content: space-between;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* АНИМАЦИИ */
+
+    @keyframes shimmer {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(120%); }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="page">
+    <!-- HEADER -->
+    <header class="sr-item">
+      <div class="brand">
+        <div class="logo-wrap" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">
+          <!-- ЗАМЕНИ путь на свой логотип -->
+          <img src="kedr-logo.png" alt="Логотип KEDR" />
+        </div>
+        <div>
+          <div class="brand-text-main">KEDR_AI</div>
+          <div class="brand-text-sub">Экспериментальный ИИ, который живёт только в Telegram</div>
+        </div>
+      </div>
+      <div class="tagline">Telegram · живёт внутри @KedrAI_bot</div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-main sr-item" id="hero">
+        <div class="hero-main-inner">
+          <div class="hero-kicker">ИИ в Telegram</div>
+          <h1 class="hero-title">
+            <span>KEDR_AI</span> — молодой ИИ,<br />который живёт только в Telegram
+          </h1>
+          <p class="hero-subtitle">
+            KEDR — экспериментальный искусственный интеллект, созданный компанией
+            <strong>K.K Neuro</strong>. Он существует и работает только внутри Telegram‑бота
+            <strong>@KedrAI_bot</strong>. Этот сайт — не интерфейс ИИ, а неоновый навигатор по тому,
+            как с ним обращаться и как запустить игру «Ситуации».
+          </p>
+          <p class="hero-warning">
+            <strong>Важно:</strong> KEDR — молодая модель. Он совершает множество ошибок, может реагировать
+            странно и переигрывать ситуации неожиданным образом. Это не баг, а часть задумки и процесса обучения.
+          </p>
+          <div class="hero-cta">
+            <a
+              class="btn-primary"
+              href="https://t.me/KedrAI_bot"
+              target="_blank"
+              rel="noopener noreferrer"
+              id="telegram-bot"
+            >
+              <span class="icon">↗</span>
+              <span>Открыть бота @KedrAI_bot</span>
+            </a>
+            <button class="btn-ghost" type="button" id="scroll-to-game">
+              Посмотреть демо игры «Ситуации»
+            </button>
+          </div>
+          <div class="hero-meta">
+            KEDR работает только в Telegram · этот сайт и mini app существуют, чтобы людям было проще понять его и добраться до команд
+          </div>
+        </div>
+      </div>
+
+      <aside class="hero-side sr-item">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          <span>Ранний доступ · нестабильное поведение</span>
+        </div>
+
+        <div class="hero-side-title">1. KEDR как помощник</div>
+        <p class="hero-side-text">
+          В чате он помогает формулировать мысли, разбивать задачи на шаги и предлагать варианты решения.
+          Иногда попадает в точку, иногда уходит в хаос — это часть его характера.
+        </p>
+        <div class="dialog-card">
+          <div class="dialog-label">Фрагмент диалога</div>
+          <div class="bubble-user">
+            «KEDR, помоги разложить задачу и понять, с чего начать».
+          </div>
+          <div class="bubble-ai">
+            «Сначала сформулируем цель. Потом выделим 3 ключевых блока работы и наметим первый простой шаг
+            для каждого — чтобы можно было начать без паралича выбора».
+          </div>
+          <div class="pill-row">
+            <div class="pill">Разбор задач</div>
+            <div class="pill">Первые шаги</div>
+          </div>
+        </div>
+
+        <div class="hero-side-title" style="margin-top: 10px;">2. KEDR как игрок</div>
+        <p class="hero-side-text">
+          У KEDR есть игра «Ситуации». В реальности он сам придумывает опасные сценарии и переигрывает ваши решения
+          внутри Telegram. Здесь на сайте — только демо на заранее заготовленных вариантах.
+        </p>
+        <div class="dialog-card">
+          <div class="dialog-label">Настоящая игра</div>
+          <div class="bubble-user">
+            Игрок: «Ситуация: лифт падает. Я открываю парашют».
+          </div>
+          <div class="bubble-danger">
+            В настоящей игре KEDR сам придумывает, чем всё закончится. В демо ниже — фиксированные исходы,
+            чтобы показать механику без участия модели.
+          </div>
+          <div class="pill-row">
+            <div class="pill pill-danger">Опасные сценарии</div>
+            <div class="pill">Фиксированные демо‑сцены</div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- MAIN GRID -->
+    <main>
+      <!-- О KEDR -->
+      <section class="card sr-item" id="about">
+        <h2 class="section-title">1. Что такое KEDR</h2>
+        <p class="section-text">
+          KEDR — автономный ИИ, который живёт и работает только внутри Telegram‑бота
+          <strong>@KedrAI_bot</strong>. Нет отдельного приложения, нет веб‑версии с живой моделью —
+          единственное место, где он действительно существует, это диалог в Telegram.
+        </p>
+        <p class="section-text">
+          Этот сайт и mini app сделаны для людей, которые хотят разобраться, что такое KEDR, чего от него ждать
+          и как запускать игровые режимы вроде «Ситуаций».
+        </p>
+
+        <h3 class="section-title" style="margin-top: 10px;">2. Как он себя ведёт</h3>
+        <ul class="list">
+          <li class="list-item">
+            <div class="list-dot"></div>
+            <div>
+              <div class="list-label">Молодой и ошибающийся</div>
+              <div class="list-desc">
+                KEDR может противоречить себе, странно понимать задачи и выдавать нелепые решения.
+                Это часть эксперимента, а не попытка быть «идеальным ассистентом».
+              </div>
+            </div>
+          </li>
+          <li class="list-item">
+            <div class="list-dot"></div>
+            <div>
+              <div class="list-label">Помощник в задачах</div>
+              <div class="list-desc">
+                Умеет разбирать запросы по шагам, подсвечивать важное и предлагать первые действия,
+                когда сложно сдвинуться с места.
+              </div>
+            </div>
+          </li>
+          <li class="list-item">
+            <div class="list-dot"></div>
+            <div>
+              <div class="list-label">Напарник по идеям</div>
+              <div class="list-desc">
+                Генерирует сценарии, варианты развития событий и может быть удобным «вторым мозгом»
+                в хаотичном режиме.
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- ДЕМО ИГРА "СИТУАЦИИ" -->
+      <section class="card sr-item" id="game-section">
+        <h2 class="section-title">2. Демо игры «Ситуации» на сайте</h2>
+        <p class="section-text">
+          Настоящая игра «Ситуации» живёт внутри Telegram‑бота <strong>@KedrAI_bot</strong>, где KEDR сам придумывает
+          безумные опасные сценарии и переигрывает ваши решения. Здесь — демо‑версия: три фиксированные ситуации
+          с готовыми вариантами ответов и заранее прописанными исходами, без участия модели.
+        </p>
+
+        <div class="game-header">Попробуйте демо</div>
+        <div class="game-block" id="demo-game">
+          <div class="game-situation-title" id="game-title">Ситуация</div>
+          <div class="game-situation-text" id="game-text">
+            Нажмите «Сгенерировать ситуацию», чтобы начать.
+          </div>
+          <div class="game-choices" id="game-choices"></div>
+          <div class="game-outcome" id="game-outcome"></div>
+          <div class="game-note" id="game-note">
+            В демо всё зафиксировано. В настоящей игре исходы придумывает KEDR внутри Telegram.
+          </div>
+          <div class="game-controls">
+            <button class="btn-small" type="button" id="game-next">
+              Сгенерировать ситуацию
+            </button>
+            <span class="game-index" id="game-index"></span>
+          </div>
+        </div>
+
+        <p class="section-text" style="margin-top: 10px;">
+          Чтобы сыграть в настоящую версию игры «Ситуации», нужно открыть бота
+          <strong>@KedrAI_bot</strong> в Telegram и отправить команду:
+        </p>
+        <div class="command-row">
+          <div class="command" id="command-copy">/situation</div>
+          <div class="command-hint" id="command-hint">Нажмите, чтобы скопировать</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ПОВЕДЕНИЕ И ОГРАНИЧЕНИЯ -->
+    <section class="card sr-item">
+      <h2 class="section-title">3. Как относиться к KEDR</h2>
+      <p class="section-text">
+        Это не стабильный сервис для критически важных задач. Это живой эксперимент. KEDR может ломать логику,
+        вываливаться в абсурд и неожиданно усиливать драму в играх. Если вы ищете контролируемый инструмент —
+        это не он. Если хотите посмотреть, как ведёт себя молодой ИИ в условиях свободы — это ближе.
+      </p>
+      <p class="section-text">
+        Мы намеренно не прячем несовершенства. С каждым диалогом и каждой ситуацией модель постепенно развивается,
+        но на этом пути будет много странного поведения.
+      </p>
+
+      <h3 class="section-title" style="margin-top: 10px;">4. Где живёт и работает KEDR</h3>
+      <ul class="list">
+        <li class="list-item">
+          <div class="list-dot"></div>
+          <div>
+            <div class="list-label">Только Telegram‑бот @KedrAI_bot</div>
+            <div class="list-desc">
+              Нет отдельного приложения и веб‑клиента с живой моделью. Реальный KEDR существует только
+              в диалоге с ботом <strong>@KedrAI_bot</strong> в Telegram.
+            </div>
+          </div>
+        </li>
+        <li class="list-item">
+          <div class="list-dot"></div>
+          <div>
+            <div class="list-label">Сайт и mini app — навигатор</div>
+            <div class="list-desc">
+              Этот сайт и возможное mini app созданы, чтобы объяснить, что такое KEDR, показать демо
+              и подсветить ключевые команды (например, <code>/situation</code>) внутри Telegram.
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- K.K NEURO + КАК НАЧАТЬ -->
+    <section class="card sr-item" id="how-to-start">
+      <h2 class="section-title">5. K.K Neuro — команда, создавшая KEDR</h2>
+      <p class="section-text">
+        KEDR_AI разработан компанией <strong>K.K Neuro</strong>. Мы экспериментируем с автономными ИИ‑системами,
+        которые не притворяются идеальными и не скрывают свои глюки.
+      </p>
+      <p class="section-text">
+        Наша цель — не «белый корпоративный ассистент», а честный напарник: иногда полезный, иногда слишком смелый,
+        иногда хаотичный, но запоминающийся.
+      </p>
+
+      <h3 class="section-title" style="margin-top: 10px;">6. Как начать работать с KEDR</h3>
+      <ul class="steps">
+        <li class="step-item">
+          <div>
+            <div class="step-title">Откройте Telegram и найдите @KedrAI_bot</div>
+            <div class="step-desc">
+              Можно перейти по ссылке <a href="https://t.me/KedrAI_bot" target="_blank" rel="noopener noreferrer">t.me/KedrAI_bot</a>.
+              Если Telegram установлен, откроется диалог с ботом.
+            </div>
+          </div>
+        </li>
+        <li class="step-item">
+          <div>
+            <div class="step-title">Начните диалог или сразу запустите игру</div>
+            <div class="step-desc">
+              Можно просто написать KEDR вопрос или задачу. Чтобы сразу перейти к игре «Ситуации», отправьте команду
+              <code>/situation</code> в чате с ботом.
+            </div>
+          </div>
+        </li>
+        <li class="step-item">
+          <div>
+            <div class="step-title">Помните, что это эксперимент</div>
+            <div class="step-desc">
+              Используйте KEDR для идей, игр и исследования поведения ИИ. Не полагайтесь на него в критических решениях
+              и воспринимайте странные ответы как часть эксперимента.
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <footer>
+      <div>© K.K Neuro — KEDR_AI, экспериментальный ИИ, который живёт только в Telegram</div>
+      <div>Сайт и mini app — неоновый навигатор по KEDR и игре «Ситуации»</div>
+    </footer>
+  </div>
+
+  <script>
+    // ScrollReveal — появление блоков при прокрутке
+    ScrollReveal().reveal('.sr-item', {
+      delay: 120,
+      distance: '40px',
+      origin: 'bottom',
+      duration: 900,
+      easing: 'cubic-bezier(0.33, 1, 0.68, 1)',
+      interval: 120
+    });
+
+    ScrollReveal().reveal('.hero-main', {
+      delay: 80,
+      distance: '32px',
+      origin: 'left',
+      duration: 900
+    });
+
+    ScrollReveal().reveal('.hero-side', {
+      delay: 160,
+      distance: '32px',
+      origin: 'right',
+      duration: 900
+    });
+
+    // Скролл к демо‑игре из hero
+    const gameBtn = document.getElementById('scroll-to-game');
+    const gameSection = document.getElementById('game-section');
+    if (gameBtn && gameSection) {
+      gameBtn.addEventListener('click', () => {
+        gameSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    // Копирование команды /situation
+    const commandEl = document.getElementById('command-copy');
+    const commandHint = document.getElementById('command-hint');
+    if (commandEl && commandHint) {
+      commandEl.addEventListener('click', async () => {
+        const text = '/situation';
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+          }
+          commandHint.textContent = 'Скопировано';
+          commandHint.classList.add('success');
+          setTimeout(() => {
+            commandHint.textContent = 'Нажмите, чтобы скопировать';
+            commandHint.classList.remove('success');
+          }, 1600);
+        } catch (e) {
+          commandHint.textContent = 'Не удалось скопировать, скопируйте вручную';
+          commandHint.classList.remove('success');
+        }
+      });
+    }
+
+    // Демо‑игра "Ситуации" — 3 фиксированные ситуации
+    const scenarios = [
+      {
+        title: 'Ситуация 1',
+        text: 'Лифт с тобой внутри падает с 30 этажа на полной скорости.',
+        choices: [
+          {
+            label: 'Открыть парашют прямо внутри лифта',
+            outcome: 'Ты дёргаешь кольцо, купол бьётся о потолок, рвётся о металл и только ускоряет вращение лифта. Идея была эффектной, но не рабочей.',
+            type: 'lose'
+          },
+          {
+            label: 'Прыгнуть в угол лифта и сгруппироваться',
+            outcome: 'Ты прижимаешься в угол и стараешься распределить нагрузку. Удар всё равно жестокий, но часть энергии уходит по стенам — ты выживаешь, хоть и с травмами.',
+            type: 'win'
+          },
+          {
+            label: 'Лечь на пол, распластавшись',
+            outcome: 'Удар приходится на всё тело. Ты выживаешь, но получаешь серьёзные повреждения. Это не красивое решение, но лучше, чем пытаться летать в коробке.',
+            type: 'win'
+          }
+        ]
+      },
+      {
+        title: 'Ситуация 2',
+        text: 'Комната быстро заполняется густым едким дымом. Ты внутри один.',
+        choices: [
+          {
+            label: 'Резко открыть окно настежь',
+            outcome: 'Снаружи дым ещё плотнее. Сквозняк затягивает его в комнату, и становится только хуже. Ты теряешь ориентацию и начинаешь задыхаться.',
+            type: 'lose'
+          },
+          {
+            label: 'Намочить ткань и закрыть ею рот и нос',
+            outcome: 'Ты быстро смачиваешь ткань, закрываешь рот и нос и пригибаешься ближе к полу. Время выигрывается, и ты находишь путь к выходу.',
+            type: 'win'
+          },
+          {
+            label: 'Попробовать выбить дверь из комнаты',
+            outcome: 'Дверь поддаётся, но за ней — коридор, уже охваченный огнём. Ты оказываешься в ещё более опасном месте.',
+            type: 'lose'
+          }
+        ]
+      },
+      {
+        title: 'Ситуация 3',
+        text: 'На кухне слышен хлопок, и ты замечаешь запах газа и маленькое пламя у плиты.',
+        choices: [
+          {
+            label: 'Сразу выбежать и захлопнуть дверь',
+            outcome: 'Ты выбегаешь, но оставляешь газ и огонь без контроля. Взрыв происходит уже без тебя, но квартира сильно повреждена.',
+            type: 'lose'
+          },
+          {
+            label: 'Накрыть плиту толстым одеялом',
+            outcome: 'Одеяло впитывает запах газа и быстро загорается, превращая небольшое пламя в полноценный пожар.',
+            type: 'lose'
+          },
+          {
+            label: 'Перекрыть газ и открыть окна',
+            outcome: 'Ты перекрываешь подачу газа, аккуратно открываешь окна и следишь, чтобы пламя не распространялось. Ситуация остаётся под контролем.',
+            type: 'win'
+          }
+        ]
+      }
+    ];
+
+    const gameTitleEl = document.getElementById('game-title');
+    const gameTextEl = document.getElementById('game-text');
+    const gameChoicesEl = document.getElementById('game-choices');
+    const gameOutcomeEl = document.getElementById('game-outcome');
+    const gameIndexEl = document.getElementById('game-index');
+    const gameNextBtn = document.getElementById('game-next');
+
+    let currentScenarioIndex = null;
+
+    function renderScenario(index) {
+      const scenario = scenarios[index];
+      currentScenarioIndex = index;
+      gameTitleEl.textContent = scenario.title;
+      gameTextEl.textContent = scenario.text;
+      gameChoicesEl.innerHTML = '';
+      gameOutcomeEl.style.display = 'none';
+      gameOutcomeEl.textContent = '';
+      gameOutcomeEl.classList.remove('win', 'lose');
+
+      scenario.choices.forEach((choice) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'choice-btn';
+        btn.textContent = choice.label;
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.choice-btn').forEach((b) => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          gameOutcomeEl.textContent = choice.outcome;
+          gameOutcomeEl.classList.remove('win', 'lose');
+          gameOutcomeEl.classList.add(choice.type === 'win' ? 'win' : 'lose');
+          gameOutcomeEl.style.display = 'block';
+        });
+        gameChoicesEl.appendChild(btn);
+      });
+
+      gameIndexEl.textContent = `Ситуация ${index + 1} из ${scenarios.length}`;
+      gameNextBtn.textContent = 'Другая ситуация';
+    }
+
+    if (gameNextBtn) {
+      gameNextBtn.addEventListener('click', () => {
+        let nextIndex = Math.floor(Math.random() * scenarios.length);
+        if (currentScenarioIndex !== null && scenarios.length > 1) {
+          while (nextIndex === currentScenarioIndex) {
+            nextIndex = Math.floor(Math.random() * scenarios.length);
+          }
+        }
+        renderScenario(nextIndex);
+      });
+    }
+  </script>
+</body>
+</html>
